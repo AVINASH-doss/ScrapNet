@@ -64,13 +64,13 @@ export const LISTING_STATUS_CONFIG: Record<string, { label: string; color: strin
    Pickup Status Labels
    ========================================== */
 
-export const PICKUP_STATUS_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
-  accepted: { label: 'Accepted', icon: '✅', color: '#22c55e' },
-  on_the_way: { label: 'On the Way', icon: '🚚', color: '#3b82f6' },
-  arrived: { label: 'Arrived', icon: '📍', color: '#8b5cf6' },
-  collected: { label: 'Collected', icon: '📦', color: '#f59e0b' },
-  completed: { label: 'Completed', icon: '🎉', color: '#16a34a' },
-  cancelled: { label: 'Cancelled', icon: '❌', color: '#ef4444' },
+export const PICKUP_STATUS_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string }> = {
+  accepted: { label: 'Accepted', icon: '✅', color: '#22c55e', bg: '#f0fdf4' },
+  on_the_way: { label: 'On the Way', icon: '🚚', color: '#3b82f6', bg: '#eff6ff' },
+  arrived: { label: 'Arrived', icon: '📍', color: '#8b5cf6', bg: '#f5f3ff' },
+  collected: { label: 'Collected', icon: '📦', color: '#f59e0b', bg: '#fffbeb' },
+  completed: { label: 'Completed', icon: '🎉', color: '#16a34a', bg: '#dcfce7' },
+  cancelled: { label: 'Cancelled', icon: '❌', color: '#ef4444', bg: '#fef2f2' },
 }
 
 /* ==========================================

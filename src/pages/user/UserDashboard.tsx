@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications'
 import { Link } from 'react-router-dom'
 import { getCategoryInfo, LISTING_STATUS_CONFIG } from '../../lib/constants'
 import { formatDate, formatCurrency } from '../../lib/utils'
@@ -8,11 +9,12 @@ import type { ScrapListing, Offer, Pickup } from '../../types/database'
 import {
   Recycle, Plus, Package, Clock, CheckCircle, IndianRupee,
   Bell, LogOut, User as UserIcon, ChevronRight, Loader2,
-  Star, Eye, TrendingUp
+  Star, Eye, TrendingUp, Truck
 } from 'lucide-react'
 
 export default function UserDashboard() {
   const { profile, signOut, loading: authLoading } = useAuth()
+  useRealtimeNotifications()
   const [stats, setStats] = useState({ active: 0, upcoming: 0, completed: 0, earnings: 0 })
   const [recentListings, setRecentListings] = useState<ScrapListing[]>([])
   const [pendingOffers, setPendingOffers] = useState<(Offer & { listing_title?: string })[]>([])
@@ -263,7 +265,22 @@ export default function UserDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <Link
+            to="/user/pickups"
+            className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary">My Pickups</h3>
+                <p className="text-sm text-text-secondary">Track scheduled pickups</p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-600 transition-colors" />
+          </Link>
           <Link
             to="/user/listings"
             className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group"

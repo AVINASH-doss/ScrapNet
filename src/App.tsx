@@ -1,64 +1,74 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { ProtectedRoute, PublicOnlyRoute } from './components/auth/ProtectedRoute'
+import { Loader2 } from 'lucide-react'
 
-// Pages
-import LandingPage from './pages/LandingPage'
-import AuthPage from './pages/AuthPage'
+// Lazy-loaded pages for code splitting
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const AuthPage = lazy(() => import('./pages/AuthPage'))
+const UserDashboard = lazy(() => import('./pages/user/UserDashboard'))
+const UserProfile = lazy(() => import('./pages/user/UserProfile'))
+const UserListings = lazy(() => import('./pages/user/UserListings'))
+const UserPickups = lazy(() => import('./pages/user/UserPickups'))
+const CreateListing = lazy(() => import('./pages/user/CreateListing'))
+const ScrapperDashboard = lazy(() => import('./pages/scrapper/ScrapperDashboard'))
+const ScrapperProfile = lazy(() => import('./pages/scrapper/ScrapperProfile'))
+const ScrapperDiscover = lazy(() => import('./pages/scrapper/ScrapperDiscover'))
+const ScrapperOffers = lazy(() => import('./pages/scrapper/ScrapperOffers'))
+const ScrapperPickups = lazy(() => import('./pages/scrapper/ScrapperPickups'))
+const ListingDetail = lazy(() => import('./pages/shared/ListingDetail'))
+const NotificationsPage = lazy(() => import('./pages/shared/NotificationsPage'))
 
-// User Pages
-import UserDashboard from './pages/user/UserDashboard'
-import UserProfile from './pages/user/UserProfile'
-import UserListings from './pages/user/UserListings'
-import CreateListing from './pages/user/CreateListing'
-
-// Scrapper Pages
-import ScrapperDashboard from './pages/scrapper/ScrapperDashboard'
-import ScrapperProfile from './pages/scrapper/ScrapperProfile'
-import ScrapperDiscover from './pages/scrapper/ScrapperDiscover'
-
-// Shared Pages
-import ListingDetail from './pages/shared/ListingDetail'
-import NotificationsPage from './pages/shared/NotificationsPage'
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-surface-50">
+      <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
+    </div>
+  )
+}
 
 function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/" element={<LandingPage />} />
 
-          {/* Auth (redirect if already logged in) */}
-          <Route element={<PublicOnlyRoute />}>
-            <Route path="/auth" element={<AuthPage />} />
-          </Route>
+            {/* Auth */}
+            <Route element={<PublicOnlyRoute />}>
+              <Route path="/auth" element={<AuthPage />} />
+            </Route>
 
-          {/* User Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-            <Route path="/user/dashboard" element={<UserDashboard />} />
-            <Route path="/user/listings" element={<UserListings />} />
-            <Route path="/user/listings/new" element={<CreateListing />} />
-            <Route path="/user/listings/:id" element={<ListingDetail />} />
-            <Route path="/user/profile" element={<UserProfile />} />
-            <Route path="/user/notifications" element={<NotificationsPage />} />
-          </Route>
+            {/* User */}
+            <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+              <Route path="/user/dashboard" element={<UserDashboard />} />
+              <Route path="/user/listings" element={<UserListings />} />
+              <Route path="/user/listings/new" element={<CreateListing />} />
+              <Route path="/user/listings/:id" element={<ListingDetail />} />
+              <Route path="/user/pickups" element={<UserPickups />} />
+              <Route path="/user/profile" element={<UserProfile />} />
+              <Route path="/user/notifications" element={<NotificationsPage />} />
+            </Route>
 
-          {/* Scrapper Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['scrapper']} />}>
-            <Route path="/scrapper/dashboard" element={<ScrapperDashboard />} />
-            <Route path="/scrapper/discover" element={<ScrapperDiscover />} />
-            <Route path="/scrapper/listings/:id" element={<ListingDetail />} />
-            <Route path="/scrapper/offers" element={<ScrapperDashboard />} />
-            <Route path="/scrapper/pickups" element={<ScrapperDashboard />} />
-            <Route path="/scrapper/profile" element={<ScrapperProfile />} />
-            <Route path="/scrapper/notifications" element={<NotificationsPage />} />
-          </Route>
+            {/* Scrapper */}
+            <Route element={<ProtectedRoute allowedRoles={['scrapper']} />}>
+              <Route path="/scrapper/dashboard" element={<ScrapperDashboard />} />
+              <Route path="/scrapper/discover" element={<ScrapperDiscover />} />
+              <Route path="/scrapper/listings/:id" element={<ListingDetail />} />
+              <Route path="/scrapper/offers" element={<ScrapperOffers />} />
+              <Route path="/scrapper/pickups" element={<ScrapperPickups />} />
+              <Route path="/scrapper/profile" element={<ScrapperProfile />} />
+              <Route path="/scrapper/notifications" element={<NotificationsPage />} />
+            </Route>
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </ToastProvider>
     </AuthProvider>
   )

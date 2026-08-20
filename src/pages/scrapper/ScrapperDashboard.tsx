@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications'
 import { Link } from 'react-router-dom'
 import { formatCurrency, formatDate } from '../../lib/utils'
 import { getCategoryInfo } from '../../lib/constants'
@@ -13,6 +14,7 @@ import {
 
 export default function ScrapperDashboard() {
   const { profile, scrapperProfile, signOut, loading: authLoading } = useAuth()
+  useRealtimeNotifications()
   const [stats, setStats] = useState({ nearby: 0, activeOffers: 0, todayPickups: 0, earnings: 0 })
   const [recentPickups, setRecentPickups] = useState<Pickup[]>([])
   const [nearbyListings, setNearbyListings] = useState<ScrapListing[]>([])
