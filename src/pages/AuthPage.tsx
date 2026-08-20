@@ -56,7 +56,7 @@ export default function AuthPage() {
           navigate(redirectPath, { replace: true })
         }
       } else {
-        const { error } = await signIn(email, password)
+        const { error } = await signIn(email, password, roleTab)
         if (error) {
           showToast('error', 'Login failed', error)
         } else {
