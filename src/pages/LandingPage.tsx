@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import {
   Recycle, ArrowRight, Shield, MapPin, TrendingUp, Truck,
-  Star, Package, Users, Leaf, ChevronRight
+  Star, Package, Leaf, ChevronRight
 } from 'lucide-react'
 
 export default function LandingPage() {
@@ -35,7 +35,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+      <section className="relative pt-36 pb-24 lg:pt-48 lg:pb-36 overflow-hidden">
         <div className="absolute inset-0 gradient-hero" />
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-400 rounded-full blur-3xl animate-pulse-soft" />
@@ -46,11 +46,11 @@ export default function LandingPage() {
             <Leaf className="w-4 h-4" />
             Making recycling accessible for everyone
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-8">
             Your scrap has{' '}
             <span className="text-brand-300">value.</span>
           </h1>
-          <p className="text-xl lg:text-2xl text-brand-200 max-w-3xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl lg:text-2xl text-brand-200 max-w-3xl mx-auto mb-12 leading-relaxed">
             We bring the right collector to your doorstep. Compare offers, schedule pickups, and get the best price for your recyclables.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -73,7 +73,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 lg:py-28 bg-surface-50">
+      <section className="py-24 lg:py-32 bg-surface-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
@@ -83,7 +83,7 @@ export default function LandingPage() {
               Selling your scrap has never been easier. Just four simple steps.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 step: '01',
@@ -112,16 +112,18 @@ export default function LandingPage() {
             ].map((item) => (
               <div
                 key={item.step}
-                className="relative bg-white rounded-2xl p-8 shadow-sm border border-surface-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+                className="relative bg-white rounded-2xl p-8 shadow-sm border border-surface-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group overflow-hidden"
               >
-                <div className="text-5xl font-bold text-surface-200 mb-4 group-hover:text-brand-200 transition-colors">
+                <div className="absolute top-4 right-4 text-4xl font-bold text-surface-100 group-hover:text-brand-100 transition-colors select-none">
                   {item.step}
                 </div>
-                <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center mb-4">
-                  <item.icon className="w-6 h-6 text-white" />
+                <div className="relative z-10">
+                  <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center mb-5">
+                    <item.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-text-primary mb-2">{item.title}</h3>
+                  <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="text-lg font-bold text-text-primary mb-2">{item.title}</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -129,7 +131,7 @@ export default function LandingPage() {
       </section>
 
       {/* Why ScrapNet */}
-      <section className="py-20 lg:py-28 bg-white">
+      <section className="py-24 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
@@ -145,48 +147,54 @@ export default function LandingPage() {
                 icon: MapPin,
                 title: 'Hyperlocal',
                 desc: 'Find collectors in your neighborhood. No wasted travel, faster pickups.',
-                color: 'bg-blue-50 text-blue-600',
+                iconColor: 'text-blue-600',
+                iconBg: 'bg-blue-50',
               },
               {
                 icon: TrendingUp,
                 title: 'Better Prices',
                 desc: 'Multiple collectors compete for your scrap. Get the best market price.',
-                color: 'bg-green-50 text-green-600',
+                iconColor: 'text-green-600',
+                iconBg: 'bg-green-50',
               },
               {
                 icon: Shield,
                 title: 'Privacy First',
                 desc: 'Your address stays hidden until you accept an offer. Stay in control.',
-                color: 'bg-purple-50 text-purple-600',
+                iconColor: 'text-purple-600',
+                iconBg: 'bg-purple-50',
               },
               {
                 icon: Star,
                 title: 'Trusted Collectors',
-                desc: 'Verified profiles, ratings, and reviews. Know who you\'re dealing with.',
-                color: 'bg-amber-50 text-amber-600',
+                desc: "Verified profiles, ratings, and reviews. Know who you're dealing with.",
+                iconColor: 'text-amber-600',
+                iconBg: 'bg-amber-50',
               },
               {
                 icon: Truck,
                 title: 'Doorstep Pickup',
                 desc: 'No need to carry heavy loads. The collector comes to you.',
-                color: 'bg-teal-50 text-teal-600',
+                iconColor: 'text-teal-600',
+                iconBg: 'bg-teal-50',
               },
               {
                 icon: Leaf,
                 title: 'Eco Impact',
                 desc: 'Reduce waste, promote recycling, and contribute to a cleaner planet.',
-                color: 'bg-emerald-50 text-emerald-600',
+                iconColor: 'text-emerald-600',
+                iconBg: 'bg-emerald-50',
               },
             ].map((item, i) => (
               <div
                 key={i}
                 className="flex items-start gap-4 p-6 rounded-2xl border border-surface-200 hover:border-brand-200 hover:shadow-md transition-all duration-300"
               >
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
-                  <item.icon className="w-5 h-5" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
+                  <item.icon className={`w-5 h-5 ${item.iconColor}`} />
                 </div>
-                <div>
-                  <h3 className="font-bold text-text-primary mb-1">{item.title}</h3>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-text-primary mb-1.5">{item.title}</h3>
                   <p className="text-sm text-text-secondary leading-relaxed">{item.desc}</p>
                 </div>
               </div>
@@ -196,7 +204,7 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Stats */}
-      <section className="py-20 lg:py-28 gradient-hero relative overflow-hidden">
+      <section className="py-24 lg:py-32 gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl" />
         </div>
@@ -209,19 +217,19 @@ export default function LandingPage() {
               Together, we're building a cleaner future.
             </p>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {[
               { value: '2,500+', label: 'kg Scrap Collected', icon: '📦' },
               { value: '850+', label: 'Pickups Completed', icon: '🚚' },
               { value: '120+', label: 'Active Collectors', icon: '👷' },
               { value: '1,200+', label: 'Households Connected', icon: '🏠' },
             ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-3xl mb-2">{stat.icon}</div>
-                <div className="text-3xl lg:text-4xl font-bold text-white mb-1">
+              <div key={i} className="text-center py-6">
+                <div className="text-4xl mb-3">{stat.icon}</div>
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
                   {stat.value}
                 </div>
-                <div className="text-brand-200 text-sm">{stat.label}</div>
+                <div className="text-brand-200 text-sm sm:text-base">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -229,12 +237,12 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 lg:py-28 bg-surface-50">
+      <section className="py-24 lg:py-32 bg-surface-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-6">
             Ready to turn your scrap into value?
           </h2>
-          <p className="text-lg text-text-secondary mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-text-secondary mb-10 max-w-2xl mx-auto">
             Join thousands of households and collectors already using ScrapNet.
           </p>
           <Link
