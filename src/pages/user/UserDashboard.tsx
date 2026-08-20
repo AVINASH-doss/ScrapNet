@@ -1,14 +1,93 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
 import { Link } from 'react-router-dom'
+import { getCategoryInfo, LISTING_STATUS_CONFIG } from '../../lib/constants'
+import { formatDate, formatCurrency } from '../../lib/utils'
+import type { ScrapListing, Offer, Pickup } from '../../types/database'
 import {
   Recycle, Plus, Package, Clock, CheckCircle, IndianRupee,
-  Bell, LogOut, User as UserIcon, ChevronRight, Loader2
+  Bell, LogOut, User as UserIcon, ChevronRight, Loader2,
+  Star, Eye, TrendingUp
 } from 'lucide-react'
 
 export default function UserDashboard() {
-  const { profile, signOut, loading } = useAuth()
+  const { profile, signOut, loading: authLoading } = useAuth()
+  const [stats, setStats] = useState({ active: 0, upcoming: 0, completed: 0, earnings: 0 })
+  const [recentListings, setRecentListings] = useState<ScrapListing[]>([])
+  const [pendingOffers, setPendingOffers] = useState<(Offer & { listing_title?: string })[]>([])
+  const [upcomingPickups, setUpcomingPickups] = useState<Pickup[]>([])
+  const [loading, setLoading] = useState(true)
+  const [unreadCount, setUnreadCount] = useState(0)
 
-  if (loading) {
+  useEffect(() => {
+    if (profile?.id) fetchDashboard()
+  }, [profile?.id])
+
+  const fetchDashboard = async () => {
+    if (!profile) return
+    setLoading(true)
+    try {
+      // Fetch listings
+      const { data: listings } = await supabase
+        .from('scrap_listings')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      const allListings = (listings || []) as unknown as ScrapListing[]
+      setRecentListings(allListings)
+
+      // Stats
+      const active = allListings.filter(l => ['published', 'receiving_offers', 'offer_accepted', 'pickup_scheduled'].includes(l.status)).length
+      const completed = allListings.filter(l => l.status === 'completed').length
+
+      // Fetch pickups
+      const { data: pickups } = await supabase
+        .from('pickups')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+
+      const allPickups = (pickups || []) as unknown as Pickup[]
+      const upcoming = allPickups.filter(p => !['completed', 'cancelled'].includes(p.status))
+      setUpcomingPickups(upcoming)
+      const totalEarnings = allPickups.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.agreed_amount, 0)
+
+      setStats({ active, upcoming: upcoming.length, completed, earnings: totalEarnings })
+
+      // Fetch pending offers on user's listings
+      const { data: offers } = await supabase
+        .from('offers')
+        .select('*, scrap_listings!inner(title, user_id)')
+        .eq('status', 'pending')
+        .eq('scrap_listings.user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (offers) {
+        setPendingOffers(offers.map((o: Record<string, unknown>) => ({
+          ...(o as unknown as Offer),
+          listing_title: (o.scrap_listings as { title: string })?.title,
+        })))
+      }
+
+      // Unread notifications
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id)
+        .eq('is_read', false)
+
+      setUnreadCount(count || 0)
+    } catch (err) {
+      console.error('Dashboard fetch error:', err)
+    }
+    setLoading(false)
+  }
+
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-50">
         <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
@@ -33,6 +112,11 @@ export default function UserDashboard() {
               className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-surface-100 rounded-xl transition-colors"
             >
               <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </Link>
             <Link
               to="/user/profile"
@@ -54,7 +138,6 @@ export default function UserDashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome */}
         <div className="mb-8 animate-fade-in">
@@ -67,17 +150,12 @@ export default function UserDashboard() {
         </div>
 
         {/* Main CTA */}
-        <Link
-          to="/user/listings/new"
-          className="block mb-8 group animate-slide-up"
-        >
+        <Link to="/user/listings/new" className="block mb-8 group animate-slide-up">
           <div className="gradient-brand rounded-2xl p-6 lg:p-8 text-white shadow-xl shadow-brand-500/20 hover:shadow-2xl hover:shadow-brand-500/30 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl lg:text-2xl font-bold mb-2">Sell Your Scrap</h2>
-                <p className="text-brand-100 lg:text-lg">
-                  Post photos, get offers from nearby collectors, and schedule a pickup.
-                </p>
+                <p className="text-brand-100 lg:text-lg">Post photos, get offers from nearby collectors, and schedule a pickup.</p>
               </div>
               <div className="hidden sm:flex w-14 h-14 bg-white/20 rounded-2xl items-center justify-center group-hover:bg-white/30 transition-colors">
                 <Plus className="w-8 h-8" />
@@ -89,15 +167,12 @@ export default function UserDashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           {[
-            { icon: Package, label: 'Active Listings', value: '0', color: 'text-blue-600 bg-blue-50' },
-            { icon: Clock, label: 'Upcoming Pickups', value: '0', color: 'text-amber-600 bg-amber-50' },
-            { icon: CheckCircle, label: 'Completed', value: '0', color: 'text-green-600 bg-green-50' },
-            { icon: IndianRupee, label: 'Total Earned', value: '₹0', color: 'text-purple-600 bg-purple-50' },
+            { icon: Package, label: 'Active Listings', value: loading ? '...' : String(stats.active), color: 'text-blue-600 bg-blue-50' },
+            { icon: Clock, label: 'Upcoming Pickups', value: loading ? '...' : String(stats.upcoming), color: 'text-amber-600 bg-amber-50' },
+            { icon: CheckCircle, label: 'Completed', value: loading ? '...' : String(stats.completed), color: 'text-green-600 bg-green-50' },
+            { icon: IndianRupee, label: 'Total Earned', value: loading ? '...' : formatCurrency(stats.earnings), color: 'text-purple-600 bg-purple-50' },
           ].map((stat, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl p-5 border border-surface-200 hover:shadow-md transition-all"
-            >
+            <div key={i} className="bg-white rounded-2xl p-5 border border-surface-200 hover:shadow-md transition-all">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>
                 <stat.icon className="w-5 h-5" />
               </div>
@@ -107,8 +182,88 @@ export default function UserDashboard() {
           ))}
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pending Offers */}
+          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-purple-500" /> Incoming Offers
+              </h3>
+            </div>
+            {pendingOffers.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-surface-200 p-6 text-center">
+                <TrendingUp className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <p className="text-sm text-text-secondary">No pending offers</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingOffers.map(offer => (
+                  <Link
+                    key={offer.id}
+                    to={`/user/listings/${offer.listing_id}`}
+                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">{offer.listing_title}</p>
+                      <p className="text-xs text-text-muted">{formatDate(offer.created_at)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-brand-700">{formatCurrency(offer.offered_amount)}</p>
+                      <p className="text-xs text-amber-600">Pending</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Listings */}
+          <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-500" /> Recent Listings
+              </h3>
+              <Link to="/user/listings" className="text-sm text-brand-600 font-medium hover:text-brand-700">
+                View all <ChevronRight className="w-3 h-3 inline" />
+              </Link>
+            </div>
+            {recentListings.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-surface-200 p-6 text-center">
+                <Package className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <p className="text-sm text-text-secondary">No listings yet</p>
+                <Link to="/user/listings/new" className="text-sm text-brand-600 font-medium mt-2 inline-block">
+                  Create one →
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentListings.map(listing => {
+                  const catInfo = getCategoryInfo(listing.category)
+                  const statusConfig = LISTING_STATUS_CONFIG[listing.status]
+                  return (
+                    <Link
+                      key={listing.id}
+                      to={`/user/listings/${listing.id}`}
+                      className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all"
+                    >
+                      <span className="text-xl">{catInfo.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-text-primary truncate">{listing.title}</p>
+                        <p className="text-xs text-text-muted">{listing.estimated_quantity} {listing.quantity_unit} · {formatDate(listing.created_at)}</p>
+                      </div>
+                      <span className="text-xs font-semibold px-2 py-1 rounded-lg shrink-0" style={{ color: statusConfig?.color, backgroundColor: statusConfig?.bg }}>
+                        {statusConfig?.label}
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <Link
             to="/user/listings"
             className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group"
@@ -138,24 +293,6 @@ export default function UserDashboard() {
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-600 transition-colors" />
-          </Link>
-        </div>
-
-        {/* Empty State for Recent Activity */}
-        <div className="mt-8 bg-white rounded-2xl border border-surface-200 p-8 text-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <div className="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Package className="w-8 h-8 text-text-muted" />
-          </div>
-          <h3 className="text-lg font-semibold text-text-primary mb-2">No recent activity</h3>
-          <p className="text-text-secondary mb-6">
-            Create your first scrap listing to get started.
-          </p>
-          <Link
-            to="/user/listings/new"
-            className="inline-flex items-center gap-2 px-6 py-3 gradient-brand text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md shadow-brand-500/20"
-          >
-            <Plus className="w-5 h-5" />
-            Create Listing
           </Link>
         </div>
       </main>
