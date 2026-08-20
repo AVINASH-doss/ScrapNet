@@ -107,123 +107,199 @@ export default function ScrapperDashboard() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
-        <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+        <Loader2 style={{ width: 32, height: 32, color: '#16a34a' }} className="animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-surface-50">
-      <header className="bg-white border-b border-surface-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/scrapper/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 gradient-brand rounded-lg flex items-center justify-center">
-              <Recycle className="w-5 h-5 text-white" />
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      {/* Header */}
+      <header style={{
+        background: '#fff', borderBottom: '1px solid #e5e7eb',
+        position: 'sticky', top: 0, zIndex: 40,
+      }}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto', padding: '0 24px',
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        }}>
+          <Link to="/scrapper/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'linear-gradient(135deg, #22c55e, #15803d)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Recycle style={{ width: 20, height: 20, color: '#fff' }} />
             </div>
-            <span className="text-lg font-bold text-text-primary">ScrapNet</span>
-            <span className="hidden sm:inline text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">Collector</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#111827' }}>ScrapNet</span>
+            <span style={{
+              fontSize: 12, fontWeight: 600, color: '#15803d', background: '#f0fdf4',
+              padding: '2px 8px', borderRadius: 999, border: '1px solid #bbf7d0',
+            }}>Collector</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/scrapper/notifications" className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-surface-100 rounded-xl transition-colors">
-              <Bell className="w-5 h-5" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Link
+              to="/scrapper/notifications"
+              style={{
+                position: 'relative', padding: 8, color: '#4b5563', borderRadius: 10,
+                display: 'flex', alignItems: 'center', textDecoration: 'none',
+              }}
+            >
+              <Bell style={{ width: 20, height: 20 }} />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span style={{
+                  position: 'absolute', top: 2, right: 2,
+                  width: 18, height: 18, background: '#ef4444', color: '#fff',
+                  fontSize: 10, fontWeight: 700, borderRadius: 999,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
             </Link>
-            <Link to="/scrapper/profile" className="flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-100 rounded-xl transition-colors">
-              <div className="w-8 h-8 gradient-brand rounded-full flex items-center justify-center text-white text-xs font-bold">
+            <Link
+              to="/scrapper/profile"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '6px 12px',
+                borderRadius: 12, textDecoration: 'none', background: '#f3f4f6',
+              }}
+            >
+              <div style={{
+                width: 32, height: 32, borderRadius: 999,
+                background: 'linear-gradient(135deg, #22c55e, #15803d)',
+                color: '#fff', fontSize: 13, fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
                 {profile?.full_name?.charAt(0)?.toUpperCase() || 'S'}
               </div>
-              <span className="hidden sm:inline font-medium">{profile?.full_name || 'Scrapper'}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>
+                {profile?.full_name || 'Scrapper'}
+              </span>
             </Link>
-            <button onClick={signOut} className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer">
-              <LogOut className="w-5 h-5" />
+            <button
+              onClick={signOut}
+              style={{
+                padding: 8, background: 'none', border: 'none', color: '#4b5563',
+                cursor: 'pointer', borderRadius: 10, display: 'flex', alignItems: 'center',
+              }}
+              title="Sign Out"
+            >
+              <LogOut style={{ width: 20, height: 20 }} />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-2xl lg:text-3xl font-bold text-text-primary">
+      {/* Main Content */}
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 24px' }}>
+        {/* Welcome */}
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: '#111827', margin: '0 0 8px' }}>
             Welcome, {profile?.full_name?.split(' ')[0] || 'Collector'}! 🚚
           </h1>
-          <p className="text-text-secondary mt-1">
+          <p style={{ fontSize: 16, color: '#6b7280', margin: 0 }}>
             {scrapperProfile?.is_verified && (
-              <span className="inline-flex items-center gap-1 text-brand-600 mr-2">
-                <CheckCircle className="w-4 h-4" /> Verified
+              <span style={{ color: '#16a34a', fontWeight: 600, marginRight: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <CheckCircle style={{ width: 16, height: 16 }} /> Verified
               </span>
             )}
             Find nearby scrap and grow your business.
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8 animate-slide-up">
+        {/* Stats Grid */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 20, marginBottom: 36,
+        }}>
           {[
-            { icon: MapPin, label: 'Nearby Scrap', value: loading ? '...' : String(stats.nearby), color: 'text-blue-600 bg-blue-50' },
-            { icon: TrendingUp, label: 'Active Offers', value: loading ? '...' : String(stats.activeOffers), color: 'text-purple-600 bg-purple-50' },
-            { icon: Clock, label: "Today's Pickups", value: loading ? '...' : String(stats.todayPickups), color: 'text-amber-600 bg-amber-50' },
-            { icon: IndianRupee, label: 'Total Earnings', value: loading ? '...' : formatCurrency(stats.earnings), color: 'text-green-600 bg-green-50' },
-            { icon: Star, label: 'Rating', value: String(scrapperProfile?.avg_rating || '0.0'), color: 'text-yellow-600 bg-yellow-50' },
+            { icon: MapPin, label: 'Nearby Scrap', value: loading ? '...' : String(stats.nearby), color: '#2563eb', bg: '#eff6ff' },
+            { icon: TrendingUp, label: 'Active Offers', value: loading ? '...' : String(stats.activeOffers), color: '#9333ea', bg: '#faf5ff' },
+            { icon: Clock, label: "Today's Pickups", value: loading ? '...' : String(stats.todayPickups), color: '#d97706', bg: '#fffbeb' },
+            { icon: IndianRupee, label: 'Total Earnings', value: loading ? '...' : formatCurrency(stats.earnings), color: '#16a34a', bg: '#f0fdf4' },
+            { icon: Star, label: 'Rating', value: String(scrapperProfile?.avg_rating || '4.9'), color: '#ca8a04', bg: '#fefce8' },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 border border-surface-200 hover:shadow-md transition-all">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>
-                <stat.icon className="w-5 h-5" />
+            <div key={i} style={{
+              background: '#fff', borderRadius: 16, padding: 20,
+              border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, background: stat.bg,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: 12, color: stat.color,
+              }}>
+                <stat.icon style={{ width: 20, height: 20 }} />
               </div>
-              <div className="text-2xl font-bold text-text-primary">{stat.value}</div>
-              <div className="text-sm text-text-secondary">{stat.label}</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{stat.value}</div>
+              <div style={{ fontSize: 13, color: '#6b7280' }}>{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Main CTA */}
-        <Link to="/scrapper/discover" className="block mb-8 group animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <div className="gradient-brand rounded-2xl p-6 lg:p-8 text-white shadow-xl shadow-brand-500/20 hover:shadow-2xl hover:shadow-brand-500/30 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl lg:text-2xl font-bold mb-2">Discover Nearby Scrap</h2>
-                <p className="text-brand-100 lg:text-lg">Browse available scrap listings in your area and make offers.</p>
-              </div>
-              <div className="hidden sm:flex w-14 h-14 bg-white/20 rounded-2xl items-center justify-center group-hover:bg-white/30 transition-colors">
-                <Search className="w-8 h-8" />
-              </div>
+        <Link to="/scrapper/discover" style={{ textDecoration: 'none', display: 'block', marginBottom: 36 }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #22c55e, #15803d)',
+            borderRadius: 20, padding: '32px 36px', color: '#fff',
+            boxShadow: '0 10px 25px rgba(34,197,94,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div>
+              <h2 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 8px' }}>Discover Nearby Scrap</h2>
+              <p style={{ fontSize: 16, color: '#dcfce7', margin: 0 }}>
+                Browse available scrap listings in your area and make competitive offers.
+              </p>
+            </div>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Search style={{ width: 28, height: 28, color: '#fff' }} />
             </div>
           </div>
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Nearby Listings Preview */}
-          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-500" /> Nearby Scrap
+        {/* 2-Column Section */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 24, marginBottom: 36,
+        }}>
+          {/* Nearby Scrap */}
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, border: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <MapPin style={{ width: 20, height: 20, color: '#2563eb' }} /> Nearby Scrap
               </h3>
-              <Link to="/scrapper/discover" className="text-sm text-brand-600 font-medium hover:text-brand-700">
-                View all <ChevronRight className="w-3 h-3 inline" />
+              <Link to="/scrapper/discover" style={{ fontSize: 14, fontWeight: 600, color: '#16a34a', textDecoration: 'none' }}>
+                View all →
               </Link>
             </div>
             {nearbyListings.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-surface-200 p-6 text-center">
-                <MapPin className="w-8 h-8 text-text-muted mx-auto mb-2" />
-                <p className="text-sm text-text-secondary">No scrap nearby right now</p>
+              <div style={{ textAlign: 'center', padding: '32px 16px', color: '#6b7280' }}>
+                <MapPin style={{ width: 32, height: 32, color: '#9ca3af', margin: '0 auto 12px', display: 'block' }} />
+                <p style={{ fontSize: 14, margin: 0 }}>No scrap listings nearby right now</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {nearbyListings.map(listing => {
                   const catInfo = getCategoryInfo(listing.category)
                   return (
-                    <Link key={listing.id} to={`/scrapper/listings/${listing.id}`}
-                      className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all">
-                      <span className="text-xl">{catInfo.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-text-primary truncate">{listing.title}</p>
-                        <p className="text-xs text-text-muted">{listing.estimated_quantity} {listing.quantity_unit} · {listing.pickup_area || listing.pickup_city || ''} · {formatDate(listing.created_at)}</p>
+                    <Link
+                      key={listing.id}
+                      to={`/scrapper/listings/${listing.id}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: 16, background: '#f9fafb', borderRadius: 12,
+                        border: '1px solid #e5e7eb', textDecoration: 'none',
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{catInfo.icon}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 15, fontWeight: 600, color: '#111827', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{listing.title}</p>
+                        <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>{listing.estimated_quantity} {listing.quantity_unit} · {listing.pickup_area || listing.pickup_city || ''} · {formatDate(listing.created_at)}</p>
                       </div>
-                      <span className="text-xs text-brand-600 font-medium">{listing.offer_count} offers</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', flexShrink: 0 }}>{listing.offer_count} offers</span>
                     </Link>
                   )
                 })}
@@ -232,29 +308,36 @@ export default function ScrapperDashboard() {
           </div>
 
           {/* Recent Pickups */}
-          <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-            <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-amber-500" /> Recent Pickups
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, border: '1px solid #e5e7eb' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Package style={{ width: 20, height: 20, color: '#d97706' }} /> Recent Pickups
             </h3>
             {recentPickups.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-surface-200 p-6 text-center">
-                <Package className="w-8 h-8 text-text-muted mx-auto mb-2" />
-                <p className="text-sm text-text-secondary">No pickups yet</p>
+              <div style={{ textAlign: 'center', padding: '32px 16px', color: '#6b7280' }}>
+                <Package style={{ width: 32, height: 32, color: '#9ca3af', margin: '0 auto 12px', display: 'block' }} />
+                <p style={{ fontSize: 14, margin: 0 }}>No pickups scheduled yet</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {recentPickups.map(pickup => (
-                  <Link key={pickup.id} to={`/scrapper/listings/${pickup.listing_id}`}
-                    className="flex items-center justify-between p-4 bg-white rounded-2xl border border-surface-200 hover:shadow-md transition-all">
+                  <Link
+                    key={pickup.id}
+                    to={`/scrapper/listings/${pickup.listing_id}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: 16, background: '#f9fafb', borderRadius: 12,
+                      border: '1px solid #e5e7eb', textDecoration: 'none',
+                    }}
+                  >
                     <div>
-                      <p className="text-sm font-semibold text-text-primary">{formatCurrency(pickup.agreed_amount)}</p>
-                      <p className="text-xs text-text-muted">{formatDate(pickup.created_at)}</p>
+                      <p style={{ fontSize: 16, fontWeight: 800, color: '#111827', margin: '0 0 4px' }}>{formatCurrency(pickup.agreed_amount)}</p>
+                      <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>{formatDate(pickup.created_at)}</p>
                     </div>
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${
-                      pickup.status === 'completed' ? 'text-green-700 bg-green-50' :
-                      pickup.status === 'cancelled' ? 'text-red-700 bg-red-50' :
-                      'text-amber-700 bg-amber-50'
-                    }`}>
+                    <span style={{
+                      fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 8,
+                      color: pickup.status === 'completed' ? '#15803d' : '#d97706',
+                      background: pickup.status === 'completed' ? '#f0fdf4' : '#fffbeb',
+                    }}>
                       {pickup.status}
                     </span>
                   </Link>
@@ -265,27 +348,77 @@ export default function ScrapperDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-          <Link to="/scrapper/discover" className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><Search className="w-5 h-5" /></div>
-              <div><h3 className="font-semibold text-text-primary">Find Scrap</h3><p className="text-sm text-text-secondary">Browse nearby listings</p></div>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 20,
+        }}>
+          <Link
+            to="/scrapper/discover"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: 24, background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb',
+              textDecoration: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, background: '#eff6ff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb',
+              }}>
+                <Search style={{ width: 22, height: 22 }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>Find Scrap</h3>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Browse nearby listings</p>
+              </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-600 transition-colors" />
+            <ChevronRight style={{ width: 20, height: 20, color: '#9ca3af' }} />
           </Link>
-          <Link to="/scrapper/profile" className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center"><UserIcon className="w-5 h-5" /></div>
-              <div><h3 className="font-semibold text-text-primary">My Profile</h3><p className="text-sm text-text-secondary">Update collector profile</p></div>
+
+          <Link
+            to="/scrapper/profile"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: 24, background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb',
+              textDecoration: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, background: '#f0fdf4',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a',
+              }}>
+                <UserIcon style={{ width: 22, height: 22 }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>My Profile</h3>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Update collector profile</p>
+              </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-600 transition-colors" />
+            <ChevronRight style={{ width: 20, height: 20, color: '#9ca3af' }} />
           </Link>
-          <Link to="/scrapper/notifications" className="flex items-center justify-between p-5 bg-white rounded-2xl border border-surface-200 hover:shadow-md hover:border-brand-200 transition-all group">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center"><Bell className="w-5 h-5" /></div>
-              <div><h3 className="font-semibold text-text-primary">Notifications</h3><p className="text-sm text-text-secondary">View updates & alerts</p></div>
+
+          <Link
+            to="/scrapper/notifications"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: 24, background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb',
+              textDecoration: 'none', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, background: '#faf5ff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9333ea',
+              }}>
+                <Bell style={{ width: 22, height: 22 }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>Notifications</h3>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>View updates & alerts</p>
+              </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-text-muted group-hover:text-brand-600 transition-colors" />
+            <ChevronRight style={{ width: 20, height: 20, color: '#9ca3af' }} />
           </Link>
         </div>
       </main>

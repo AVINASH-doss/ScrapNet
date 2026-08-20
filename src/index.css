@@ -167,3 +167,49 @@ body {
 .toast-exit {
   animation: fade-in 0.2s ease-in reverse;
 }
+
+/* ==========================================
+   Global Layout & Spacing Helpers
+   ========================================== */
+
+main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.max-w-7xl {
+  max-width: 1280px;
+}
+
+.max-w-5xl {
+  max-width: 1024px;
+}
+
+.max-w-4xl {
+  max-width: 896px;
+}
+
+.max-w-3xl {
+  max-width: 768px;
+}
+
+.max-w-2xl {
+  max-width: 672px;
+}
+
+.max-w-xl {
+  max-width: 576px;
+}
+
+/* Ensure flex/grid gap and margin spacing works reliably */
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.space-y-8 > * + * { margin-top: 2rem; }
+
+.space-x-2 > * + * { margin-left: 0.5rem; }
+.space-x-3 > * + * { margin-left: 0.75rem; }
+.space-x-4 > * + * { margin-left: 1rem; }
