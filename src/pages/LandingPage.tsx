@@ -4,198 +4,272 @@ import {
   Star, Package, Leaf, ChevronRight
 } from 'lucide-react'
 
+const steps = [
+  {
+    step: '01',
+    icon: Package,
+    title: 'Post your scrap',
+    desc: 'Take photos, select the category, and add details about your recyclables.',
+  },
+  {
+    step: '02',
+    icon: TrendingUp,
+    title: 'Get offers',
+    desc: 'Nearby verified collectors will send you competitive offers.',
+  },
+  {
+    step: '03',
+    icon: Star,
+    title: 'Choose collector',
+    desc: 'Compare offers, ratings, and distance. Accept the best deal.',
+  },
+  {
+    step: '04',
+    icon: Truck,
+    title: 'Schedule pickup',
+    desc: 'The collector comes to your door. Get paid and rate the experience.',
+  },
+]
+
+const features = [
+  {
+    icon: MapPin,
+    title: 'Hyperlocal',
+    desc: 'Find collectors in your neighborhood. No wasted travel, faster pickups.',
+    color: '#3b82f6',
+    bg: '#eff6ff',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Better Prices',
+    desc: 'Multiple collectors compete for your scrap. Get the best market price.',
+    color: '#22c55e',
+    bg: '#f0fdf4',
+  },
+  {
+    icon: Shield,
+    title: 'Privacy First',
+    desc: 'Your address stays hidden until you accept an offer. Stay in control.',
+    color: '#8b5cf6',
+    bg: '#f5f3ff',
+  },
+  {
+    icon: Star,
+    title: 'Trusted Collectors',
+    desc: "Verified profiles, ratings, and reviews. Know who you're dealing with.",
+    color: '#f59e0b',
+    bg: '#fffbeb',
+  },
+  {
+    icon: Truck,
+    title: 'Doorstep Pickup',
+    desc: 'No need to carry heavy loads. The collector comes to you.',
+    color: '#14b8a6',
+    bg: '#f0fdfa',
+  },
+  {
+    icon: Leaf,
+    title: 'Eco Impact',
+    desc: 'Reduce waste, promote recycling, and contribute to a cleaner planet.',
+    color: '#10b981',
+    bg: '#ecfdf5',
+  },
+]
+
+const stats = [
+  { value: '2,500+', label: 'kg Scrap Collected', emoji: '📦' },
+  { value: '850+', label: 'Pickups Completed', emoji: '🚚' },
+  { value: '120+', label: 'Active Collectors', emoji: '👷' },
+  { value: '1,200+', label: 'Households Connected', emoji: '🏠' },
+]
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-surface-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 gradient-brand rounded-lg flex items-center justify-center">
-              <Recycle className="w-5 h-5 text-white" />
+    <div style={{ minHeight: '100vh', background: '#fff' }}>
+      {/* ─── Navbar ─── */}
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #e5e7eb',
+      }}>
+        <div style={{
+          maxWidth: 1280, margin: '0 auto', padding: '0 24px',
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'linear-gradient(135deg, #22c55e, #15803d)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Recycle style={{ width: 20, height: 20, color: '#fff' }} />
             </div>
-            <span className="text-xl font-bold text-text-primary">ScrapNet</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: '#111827' }}>ScrapNet</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/auth"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link to="/auth" style={{ padding: '8px 16px', fontSize: 14, fontWeight: 500, color: '#4b5563', textDecoration: 'none' }}>
               Sign In
             </Link>
-            <Link
-              to="/auth"
-              className="inline-flex items-center gap-2 px-5 py-2.5 gradient-brand text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-all shadow-md shadow-brand-500/20"
-            >
-              Get Started
-              <ArrowRight className="w-4 h-4" />
+            <Link to="/auth" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 20px', fontSize: 14, fontWeight: 600,
+              background: 'linear-gradient(135deg, #22c55e, #15803d)',
+              color: '#fff', borderRadius: 12, textDecoration: 'none',
+              boxShadow: '0 4px 14px rgba(34,197,94,0.3)',
+            }}>
+              Get Started <ArrowRight style={{ width: 16, height: 16 }} />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative pt-36 pb-24 lg:pt-48 lg:pb-36 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero" />
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-400 rounded-full blur-3xl animate-pulse-soft" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-brand-200 text-sm font-medium mb-8 backdrop-blur-sm border border-white/10">
-            <Leaf className="w-4 h-4" />
+      {/* ─── Hero ─── */}
+      <section style={{
+        position: 'relative', paddingTop: 160, paddingBottom: 120,
+        background: 'linear-gradient(135deg, #052e16 0%, #14532d 40%, #15803d 100%)',
+        overflow: 'hidden', textAlign: 'center',
+      }}>
+        <div style={{ position: 'relative', zIndex: 10, maxWidth: 900, margin: '0 auto', padding: '0 24px' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '8px 20px', borderRadius: 999,
+            background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+            color: '#bbf7d0', fontSize: 14, fontWeight: 500, marginBottom: 32,
+          }}>
+            <Leaf style={{ width: 16, height: 16 }} />
             Making recycling accessible for everyone
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-8">
+          <h1 style={{
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+            fontWeight: 800, color: '#fff', lineHeight: 1.1, marginBottom: 28,
+          }}>
             Your scrap has{' '}
-            <span className="text-brand-300">value.</span>
+            <span style={{ color: '#86efac' }}>value.</span>
           </h1>
-          <p className="text-lg sm:text-xl lg:text-2xl text-brand-200 max-w-3xl mx-auto mb-12 leading-relaxed">
-            We bring the right collector to your doorstep. Compare offers, schedule pickups, and get the best price for your recyclables.
+          <p style={{
+            fontSize: 'clamp(1rem, 2.5vw, 1.35rem)',
+            color: '#bbf7d0', lineHeight: 1.7, maxWidth: 700, margin: '0 auto 48px',
+          }}>
+            We bring the right collector to your doorstep. Compare offers,
+            schedule pickups, and get the best price for your recyclables.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/auth"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-brand-700 font-bold rounded-2xl hover:bg-brand-50 transition-all shadow-xl shadow-black/10 text-lg"
-            >
-              <Package className="w-5 h-5" />
-              Sell Scrap
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
+            <Link to="/auth" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '16px 32px', fontSize: 17, fontWeight: 700,
+              background: '#fff', color: '#15803d', borderRadius: 16,
+              textDecoration: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+            }}>
+              <Package style={{ width: 20, height: 20 }} /> Sell Scrap
             </Link>
-            <Link
-              to="/auth"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-all backdrop-blur-sm border border-white/20 text-lg"
-            >
-              <Truck className="w-5 h-5" />
-              I'm a Scrapper
+            <Link to="/auth" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '16px 32px', fontSize: 17, fontWeight: 700,
+              background: 'rgba(255,255,255,0.12)', color: '#fff', borderRadius: 16,
+              textDecoration: 'none', border: '1px solid rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <Truck style={{ width: 20, height: 20 }} /> I'm a Scrapper
             </Link>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-24 lg:py-32 bg-surface-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+      {/* ─── How It Works ─── */}
+      <section style={{ padding: '80px 24px', background: '#f9fafb' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
               How it works
             </h2>
-            <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+            <p style={{ fontSize: 17, color: '#6b7280', maxWidth: 600, margin: '0 auto' }}>
               Selling your scrap has never been easier. Just four simple steps.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                step: '01',
-                icon: Package,
-                title: 'Post your scrap',
-                desc: 'Take photos, select the category, and add details about your recyclables.',
-              },
-              {
-                step: '02',
-                icon: TrendingUp,
-                title: 'Get offers',
-                desc: 'Nearby verified collectors will send you competitive offers.',
-              },
-              {
-                step: '03',
-                icon: Star,
-                title: 'Choose collector',
-                desc: 'Compare offers, ratings, and distance. Accept the best deal.',
-              },
-              {
-                step: '04',
-                icon: Truck,
-                title: 'Schedule pickup',
-                desc: 'The collector comes to your door. Get paid and rate the experience.',
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="relative bg-white rounded-2xl p-8 shadow-sm border border-surface-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group overflow-hidden"
-              >
-                <div className="absolute top-4 right-4 text-4xl font-bold text-surface-100 group-hover:text-brand-100 transition-colors select-none">
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24
+          }}>
+            {steps.map(item => (
+              <div key={item.step} style={{
+                position: 'relative', background: '#fff', borderRadius: 20,
+                padding: 32, border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                overflow: 'hidden',
+              }}>
+                <span style={{
+                  position: 'absolute', top: 16, right: 20,
+                  fontSize: 48, fontWeight: 800, color: '#f3f4f6',
+                  lineHeight: 1, userSelect: 'none',
+                }}>
                   {item.step}
+                </span>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  background: 'linear-gradient(135deg, #22c55e, #15803d)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 20, position: 'relative', zIndex: 2,
+                }}>
+                  <item.icon style={{ width: 22, height: 22, color: '#fff' }} />
                 </div>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center mb-5">
-                    <item.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-text-primary mb-2">{item.title}</h3>
-                  <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
-                </div>
+                <h3 style={{
+                  fontSize: 18, fontWeight: 700, color: '#111827',
+                  marginBottom: 8, position: 'relative', zIndex: 2,
+                }}>
+                  {item.title}
+                </h3>
+                <p style={{
+                  fontSize: 14, color: '#6b7280', lineHeight: 1.6,
+                  position: 'relative', zIndex: 2,
+                }}>
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why ScrapNet */}
-      <section className="py-24 lg:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
-              Why <span className="text-gradient">ScrapNet</span>?
+      {/* ─── Why ScrapNet ─── */}
+      <section style={{ padding: '80px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
+              Why{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #22c55e, #15803d)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              }}>
+                ScrapNet
+              </span>
+              ?
             </h2>
-            <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+            <p style={{ fontSize: 17, color: '#6b7280', maxWidth: 600, margin: '0 auto' }}>
               We make the scrap recycling process convenient, transparent, and trustworthy.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: MapPin,
-                title: 'Hyperlocal',
-                desc: 'Find collectors in your neighborhood. No wasted travel, faster pickups.',
-                iconColor: 'text-blue-600',
-                iconBg: 'bg-blue-50',
-              },
-              {
-                icon: TrendingUp,
-                title: 'Better Prices',
-                desc: 'Multiple collectors compete for your scrap. Get the best market price.',
-                iconColor: 'text-green-600',
-                iconBg: 'bg-green-50',
-              },
-              {
-                icon: Shield,
-                title: 'Privacy First',
-                desc: 'Your address stays hidden until you accept an offer. Stay in control.',
-                iconColor: 'text-purple-600',
-                iconBg: 'bg-purple-50',
-              },
-              {
-                icon: Star,
-                title: 'Trusted Collectors',
-                desc: "Verified profiles, ratings, and reviews. Know who you're dealing with.",
-                iconColor: 'text-amber-600',
-                iconBg: 'bg-amber-50',
-              },
-              {
-                icon: Truck,
-                title: 'Doorstep Pickup',
-                desc: 'No need to carry heavy loads. The collector comes to you.',
-                iconColor: 'text-teal-600',
-                iconBg: 'bg-teal-50',
-              },
-              {
-                icon: Leaf,
-                title: 'Eco Impact',
-                desc: 'Reduce waste, promote recycling, and contribute to a cleaner planet.',
-                iconColor: 'text-emerald-600',
-                iconBg: 'bg-emerald-50',
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-4 p-6 rounded-2xl border border-surface-200 hover:border-brand-200 hover:shadow-md transition-all duration-300"
-              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
-                  <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20
+          }}>
+            {features.map((item, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 16,
+                padding: 24, borderRadius: 16, border: '1px solid #e5e7eb',
+                background: '#fff',
+              }}>
+                <div style={{
+                  width: 44, height: 44, minWidth: 44, borderRadius: 12,
+                  background: item.bg, display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <item.icon style={{ width: 20, height: 20, color: item.color }} />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-text-primary mb-1.5">{item.title}</h3>
-                  <p className="text-sm text-text-secondary leading-relaxed">{item.desc}</p>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -203,72 +277,77 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Impact Stats */}
-      <section className="py-24 lg:py-32 gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl" />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+      {/* ─── Impact Stats ─── */}
+      <section style={{
+        padding: '80px 24px',
+        background: 'linear-gradient(135deg, #052e16 0%, #14532d 40%, #15803d 100%)',
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 700, color: '#fff', marginBottom: 12 }}>
               Our Impact
             </h2>
-            <p className="text-lg text-brand-200">
+            <p style={{ fontSize: 17, color: '#bbf7d0' }}>
               Together, we're building a cleaner future.
             </p>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {[
-              { value: '2,500+', label: 'kg Scrap Collected', icon: '📦' },
-              { value: '850+', label: 'Pickups Completed', icon: '🚚' },
-              { value: '120+', label: 'Active Collectors', icon: '👷' },
-              { value: '1,200+', label: 'Households Connected', icon: '🏠' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center py-6">
-                <div className="text-4xl mb-3">{stat.icon}</div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32,
+          }}>
+            {stats.map((stat, i) => (
+              <div key={i} style={{ textAlign: 'center', padding: '24px 0' }}>
+                <div style={{ fontSize: 40, marginBottom: 12, lineHeight: 1 }}>{stat.emoji}</div>
+                <div style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: '#fff', marginBottom: 8, lineHeight: 1 }}>
                   {stat.value}
                 </div>
-                <div className="text-brand-200 text-sm sm:text-base">{stat.label}</div>
+                <div style={{ fontSize: 14, color: '#bbf7d0' }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 lg:py-32 bg-surface-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-text-primary mb-6">
+      {/* ─── CTA ─── */}
+      <section style={{ padding: '80px 24px', background: '#f9fafb', textAlign: 'center' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 32, fontWeight: 700, color: '#111827', marginBottom: 16 }}>
             Ready to turn your scrap into value?
           </h2>
-          <p className="text-lg text-text-secondary mb-10 max-w-2xl mx-auto">
+          <p style={{ fontSize: 17, color: '#6b7280', marginBottom: 40, lineHeight: 1.6 }}>
             Join thousands of households and collectors already using ScrapNet.
           </p>
-          <Link
-            to="/auth"
-            className="inline-flex items-center gap-2 px-8 py-4 gradient-brand text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-brand-500/20 text-lg"
-          >
-            Get Started Free
-            <ChevronRight className="w-5 h-5" />
+          <Link to="/auth" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '16px 32px', fontSize: 17, fontWeight: 700,
+            background: 'linear-gradient(135deg, #22c55e, #15803d)',
+            color: '#fff', borderRadius: 16, textDecoration: 'none',
+            boxShadow: '0 8px 30px rgba(34,197,94,0.3)',
+          }}>
+            Get Started Free <ChevronRight style={{ width: 20, height: 20 }} />
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-brand-950 text-brand-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-                <Recycle className="w-5 h-5 text-brand-400" />
-              </div>
-              <span className="text-lg font-bold text-white">ScrapNet</span>
+      {/* ─── Footer ─── */}
+      <footer style={{ background: '#052e16', padding: '40px 24px' }}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto',
+          display: 'flex', flexWrap: 'wrap', alignItems: 'center',
+          justifyContent: 'space-between', gap: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: 'rgba(255,255,255,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Recycle style={{ width: 18, height: 18, color: '#4ade80' }} />
             </div>
-            <p className="text-sm text-brand-300">
-              © {new Date().getFullYear()} ScrapNet. Building a cleaner future, one pickup at a time.
-            </p>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>ScrapNet</span>
           </div>
+          <p style={{ fontSize: 13, color: '#86efac', margin: 0 }}>
+            © {new Date().getFullYear()} ScrapNet. Building a cleaner future, one pickup at a time.
+          </p>
         </div>
       </footer>
     </div>
