@@ -50,8 +50,9 @@ export function PublicOnlyRoute({ children }: { children?: React.ReactNode }) {
     )
   }
 
-  if (user && role) {
-    const redirectPath = role === 'scrapper' ? '/scrapper/dashboard' : '/user/dashboard'
+  if (user) {
+    const effectiveRole = role || (user.user_metadata?.role as UserRole) || 'user'
+    const redirectPath = effectiveRole === 'scrapper' ? '/scrapper/dashboard' : '/user/dashboard'
     return <Navigate to={redirectPath} replace />
   }
 

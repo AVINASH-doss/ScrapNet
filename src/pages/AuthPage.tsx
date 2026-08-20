@@ -5,7 +5,7 @@ import { useToast } from '../contexts/ToastContext'
 import type { UserRole } from '../types/database'
 import {
   Recycle, Mail, Lock, User, ArrowRight, Eye, EyeOff,
-  Truck, Home, Loader2, ChevronDown
+  Truck, Home, Loader2, ChevronRight
 } from 'lucide-react'
 
 type AuthMode = 'login' | 'signup'
@@ -45,7 +45,11 @@ export default function AuthPage() {
 
         const { error } = await signUp(email, password, fullName, roleTab)
         if (error) {
-          showToast('error', 'Sign up failed', error)
+          if (error.includes('check your email')) {
+            showToast('info', 'Check your email', error)
+          } else {
+            showToast('error', 'Sign up failed', error)
+          }
         } else {
           showToast('success', 'Account created!', 'Welcome to ScrapNet.')
           const redirectPath = from ?? (roleTab === 'scrapper' ? '/scrapper/dashboard' : '/user/dashboard')
@@ -57,53 +61,58 @@ export default function AuthPage() {
           showToast('error', 'Login failed', error)
         } else {
           showToast('success', 'Welcome back!')
-          // Role-based redirect handled by auth state change + protected routes
-          // but we can also force a navigation if we know the path
-          if (from) {
-            navigate(from, { replace: true })
-          }
-          // The auth state change will trigger a redirect through ProtectedRoute/PublicOnlyRoute
+          setTimeout(() => {
+            const redirectPath = from ?? (roleTab === 'scrapper' ? '/scrapper/dashboard' : '/user/dashboard')
+            navigate(redirectPath, { replace: true })
+          }, 100)
         }
       }
     } catch {
-      showToast('error', 'Something went wrong')
+      showToast('error', 'Something went wrong. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#f9fafb' }}>
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-brand-400 rounded-full blur-3xl" />
-        </div>
-        <div className="relative z-10 flex flex-col justify-center px-16">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Recycle className="w-7 h-7 text-white" />
+      <div style={{
+        flex: '1 1 50%', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        padding: '60px 80px',
+        background: 'linear-gradient(135deg, #052e16 0%, #14532d 40%, #15803d 100%)',
+        position: 'relative', overflow: 'hidden',
+      }} className="hidden lg:flex">
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 12,
+              background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Recycle style={{ width: 28, height: 28, color: '#fff' }} />
             </div>
-            <span className="text-2xl font-bold text-white">ScrapNet</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: '#fff' }}>ScrapNet</span>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
-            Your scrap has value.
+
+          <h1 style={{ fontSize: 44, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 20 }}>
+            Your scrap has <span style={{ color: '#86efac' }}>value.</span>
           </h1>
-          <p className="text-xl text-brand-200 leading-relaxed mb-12">
-            We bring the right collector to your doorstep.
-            Compare offers, schedule pickups, and contribute to a cleaner planet.
+
+          <p style={{ fontSize: 18, color: '#bbf7d0', lineHeight: 1.6, marginBottom: 48, maxWidth: 500 }}>
+            We bring the right collector to your doorstep. Compare offers, schedule pickups, and contribute to a cleaner planet.
           </p>
-          <div className="flex flex-col gap-4">
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {[
               { icon: '📦', text: 'Post your scrap in seconds' },
               { icon: '💰', text: 'Get competitive offers from verified collectors' },
               { icon: '🔒', text: 'Your privacy is protected until you accept' },
               { icon: '⭐', text: 'Rate and review for trust & transparency' },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-brand-100">
-                <span className="text-2xl">{item.icon}</span>
-                <span className="text-lg">{item.text}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontSize: 24 }}>{item.icon}</span>
+                <span style={{ fontSize: 16, color: '#dcfce7', fontWeight: 500 }}>{item.text}</span>
               </div>
             ))}
           </div>
@@ -111,50 +120,64 @@ export default function AuthPage() {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-surface-50">
-        <div className="w-full max-w-md animate-fade-in">
+      <div style={{
+        flex: '1 1 50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '40px 24px', background: '#f9fafb',
+      }}>
+        <div style={{ width: '100%', maxWidth: 420 }}>
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
-            <div className="w-10 h-10 gradient-brand rounded-xl flex items-center justify-center">
-              <Recycle className="w-6 h-6 text-white" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, justifyContent: 'center' }} className="lg:hidden">
+            <div style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: 'linear-gradient(135deg, #22c55e, #15803d)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <Recycle style={{ width: 22, height: 22, color: '#fff' }} />
             </div>
-            <span className="text-xl font-bold text-text-primary">ScrapNet</span>
+            <span style={{ fontSize: 22, fontWeight: 800, color: '#111827' }}>ScrapNet</span>
           </div>
 
-          {/* Role Toggle */}
-          <div className="bg-surface-100 rounded-2xl p-1 flex mb-8">
+          {/* Role Selector Tabs */}
+          <div style={{
+            background: '#e5e7eb', padding: 4, borderRadius: 16,
+            display: 'flex', marginBottom: 32, gap: 4,
+          }}>
             <button
               type="button"
               onClick={() => setRoleTab('user')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                roleTab === 'user'
-                  ? 'bg-white text-brand-700 shadow-md'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                background: roleTab === 'user' ? '#fff' : 'transparent',
+                color: roleTab === 'user' ? '#15803d' : '#4b5563',
+                boxShadow: roleTab === 'user' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+              }}
             >
-              <Home className="w-4 h-4" />
-              Household
+              <Home style={{ width: 16, height: 16 }} /> Household
             </button>
             <button
               type="button"
               onClick={() => setRoleTab('scrapper')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                roleTab === 'scrapper'
-                  ? 'bg-white text-brand-700 shadow-md'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                background: roleTab === 'scrapper' ? '#fff' : 'transparent',
+                color: roleTab === 'scrapper' ? '#15803d' : '#4b5563',
+                boxShadow: roleTab === 'scrapper' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+              }}
             >
-              <Truck className="w-4 h-4" />
-              Scrapper
+              <Truck style={{ width: 16, height: 16 }} /> Scrapper
             </button>
           </div>
 
-          {/* Heading */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-text-primary">
+          {/* Form Header */}
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#111827', margin: '0 0 6px' }}>
               {mode === 'login' ? 'Welcome back' : 'Create account'}
             </h2>
-            <p className="text-text-secondary mt-1">
+            <p style={{ fontSize: 14, color: '#6b7280', margin: 0 }}>
               {mode === 'login'
                 ? `Sign in to your ${roleTab === 'scrapper' ? 'collector' : 'household'} account`
                 : `Join ScrapNet as a ${roleTab === 'scrapper' ? 'scrap collector' : 'household user'}`
@@ -163,21 +186,24 @@ export default function AuthPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {mode === 'signup' && (
               <div>
-                <label htmlFor="auth-fullname" className="block text-sm font-medium text-text-primary mb-1.5">
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
                   Full Name
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <User style={{ position: 'absolute', left: 14, width: 20, height: 20, color: '#9ca3af', pointerEvents: 'none' }} />
                   <input
-                    id="auth-fullname"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder={roleTab === 'scrapper' ? 'Business or full name' : 'Your full name'}
-                    className="w-full pl-11 pr-4 py-3 bg-white border border-surface-200 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                    style={{
+                      width: '100%', padding: '12px 14px 12px 46px',
+                      fontSize: 15, background: '#fff', border: '1px solid #d1d5db',
+                      borderRadius: 12, color: '#111827', outline: 'none',
+                    }}
                     required
                   />
                 </div>
@@ -185,45 +211,54 @@ export default function AuthPage() {
             )}
 
             <div>
-              <label htmlFor="auth-email" className="block text-sm font-medium text-text-primary mb-1.5">
-                Email
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
+                Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Mail style={{ position: 'absolute', left: 14, width: 20, height: 20, color: '#9ca3af', pointerEvents: 'none' }} />
                 <input
-                  id="auth-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 bg-white border border-surface-200 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                  style={{
+                    width: '100%', padding: '12px 14px 12px 46px',
+                    fontSize: 15, background: '#fff', border: '1px solid #d1d5db',
+                    borderRadius: 12, color: '#111827', outline: 'none',
+                  }}
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="auth-password" className="block text-sm font-medium text-text-primary mb-1.5">
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Lock style={{ position: 'absolute', left: 14, width: 20, height: 20, color: '#9ca3af', pointerEvents: 'none' }} />
                 <input
-                  id="auth-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={mode === 'signup' ? 'Min. 6 characters' : 'Your password'}
-                  className="w-full pl-11 pr-12 py-3 bg-white border border-surface-200 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                  style={{
+                    width: '100%', padding: '12px 46px 12px 46px',
+                    fontSize: 15, background: '#fff', border: '1px solid #d1d5db',
+                    borderRadius: 12, color: '#111827', outline: 'none',
+                  }}
                   required
                   minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                  style={{
+                    position: 'absolute', right: 14, background: 'none', border: 'none',
+                    cursor: 'pointer', padding: 0, color: '#9ca3af', display: 'flex',
+                  }}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff style={{ width: 20, height: 20 }} /> : <Eye style={{ width: 20, height: 20 }} />}
                 </button>
               </div>
             </div>
@@ -231,63 +266,61 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full gradient-brand text-white font-semibold py-3 px-6 rounded-xl hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-500/20 hover:shadow-xl hover:shadow-brand-500/30 cursor-pointer"
+              style={{
+                width: '100%', padding: '14px 24px', fontSize: 16, fontWeight: 700,
+                background: 'linear-gradient(135deg, #22c55e, #15803d)',
+                color: '#fff', border: 'none', borderRadius: 12, cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                opacity: isSubmitting ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: '0 4px 14px rgba(34,197,94,0.3)', marginTop: 8,
+              }}
             >
               {isSubmitting ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 style={{ width: 20, height: 20 }} className="animate-spin" />
               ) : (
                 <>
                   {mode === 'login' ? 'Sign In' : 'Create Account'}
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight style={{ width: 20, height: 20 }} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Toggle Auth Mode */}
-          <div className="mt-6 text-center">
-            <p className="text-text-secondary text-sm">
+          {/* Toggle Login/Signup */}
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <p style={{ fontSize: 14, color: '#6b7280', margin: 0 }}>
               {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}
               <button
                 type="button"
                 onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                className="ml-1 text-brand-600 font-semibold hover:text-brand-700 transition-colors cursor-pointer"
+                style={{
+                  background: 'none', border: 'none', color: '#16a34a',
+                  fontWeight: 700, fontSize: 14, marginLeft: 6, cursor: 'pointer',
+                }}
               >
                 {mode === 'login' ? 'Sign Up' : 'Sign In'}
               </button>
             </p>
           </div>
 
-          {/* Scrapper callout for users */}
-          {roleTab === 'user' && (
-            <div className="mt-8 pt-6 border-t border-surface-200 text-center">
-              <p className="text-text-secondary text-sm mb-2">Are you a scrap collector?</p>
-              <button
-                type="button"
-                onClick={() => setRoleTab('scrapper')}
-                className="inline-flex items-center gap-2 text-brand-600 font-semibold text-sm hover:text-brand-700 transition-colors cursor-pointer"
-              >
-                <Truck className="w-4 h-4" />
-                Login / Sign up as Scrapper
-                <ChevronDown className="w-4 h-4 -rotate-90" />
-              </button>
-            </div>
-          )}
-
-          {roleTab === 'scrapper' && (
-            <div className="mt-8 pt-6 border-t border-surface-200 text-center">
-              <p className="text-text-secondary text-sm mb-2">Not a collector?</p>
-              <button
-                type="button"
-                onClick={() => setRoleTab('user')}
-                className="inline-flex items-center gap-2 text-brand-600 font-semibold text-sm hover:text-brand-700 transition-colors cursor-pointer"
-              >
-                <Home className="w-4 h-4" />
-                Continue as Household
-                <ChevronDown className="w-4 h-4 -rotate-90" />
-              </button>
-            </div>
-          )}
+          {/* Scrapper Callout */}
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>
+              {roleTab === 'user' ? 'Are you a scrap collector?' : 'Not a collector?'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setRoleTab(roleTab === 'user' ? 'scrapper' : 'user')}
+              style={{
+                background: 'none', border: 'none', color: '#16a34a',
+                fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+              }}
+            >
+              {roleTab === 'user' ? <Truck style={{ width: 16, height: 16 }} /> : <Home style={{ width: 16, height: 16 }} />}
+              {roleTab === 'user' ? 'Login / Sign up as Scrapper' : 'Continue as Household'}
+              <ChevronRight style={{ width: 16, height: 16 }} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

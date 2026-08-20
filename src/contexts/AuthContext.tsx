@@ -25,36 +25,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [scrapperProfile, setScrapperProfile] = useState<ScrapperProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const role = profile?.role ?? null
+  const role = profile?.role ?? (user?.user_metadata?.role as UserRole) ?? null
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError)
-        return
-      }
-
-      const typedProfile = profileData as unknown as Profile
-      setProfile(typedProfile)
-
-      if (typedProfile?.role === 'scrapper') {
-        const { data: scrapperData } = await supabase
-          .from('scrapper_profiles')
+  const fetchProfile = useCallback(async (userId: string, retries = 3): Promise<Profile | null> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
           .select('*')
-          .eq('user_id', userId)
+          .eq('id', userId)
           .single()
 
-        setScrapperProfile(scrapperData as unknown as ScrapperProfile)
+        if (profileError) {
+          // Profile might not be created yet (trigger delay), retry after short wait
+          if (i < retries - 1) {
+            await new Promise(r => setTimeout(r, 800 * (i + 1)))
+            continue
+          }
+          console.error('Error fetching profile:', profileError)
+          return null
+        }
+
+        const typedProfile = profileData as unknown as Profile
+        setProfile(typedProfile)
+
+        if (typedProfile?.role === 'scrapper') {
+          const { data: scrapperData } = await supabase
+            .from('scrapper_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+
+          setScrapperProfile(scrapperData as unknown as ScrapperProfile)
+        }
+
+        return typedProfile
+      } catch (err) {
+        if (i < retries - 1) {
+          await new Promise(r => setTimeout(r, 800 * (i + 1)))
+          continue
+        }
+        console.error('Error in fetchProfile:', err)
       }
-    } catch (err) {
-      console.error('Error in fetchProfile:', err)
     }
+    return null
   }, [])
 
 
@@ -101,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userRole: UserRole
   ): Promise<{ error: string | null }> => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -112,10 +126,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       })
 
-      if (error) return { error: error.message }
+      if (error) {
+        // Provide user-friendly error messages
+        if (error.message.includes('rate limit')) {
+          return { error: 'Too many attempts. Please wait a minute and try again.' }
+        }
+        if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+          return { error: 'This email is already registered. Try signing in instead.' }
+        }
+        if (error.message.includes('email_address_invalid') || error.message.includes('invalid')) {
+          return { error: 'Please enter a valid email address.' }
+        }
+        return { error: error.message }
+      }
+
+      // Supabase with email confirmation disabled returns a session immediately.
+      // With email confirmation enabled, data.session will be null.
+      if (data?.session) {
+        // Auto-confirmed — wait for profile to be created by the DB trigger
+        await fetchProfile(data.session.user.id, 5)
+        return { error: null }
+      }
+
+      // Email confirmation required
+      if (data?.user && !data.session) {
+        return { error: 'Please check your email to confirm your account, then sign in.' }
+      }
+
       return { error: null }
     } catch (err) {
-      return { error: 'An unexpected error occurred' }
+      console.error('SignUp error:', err)
+      return { error: 'An unexpected error occurred. Please try again.' }
     }
   }
 
@@ -124,15 +165,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string
   ): Promise<{ error: string | null }> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) return { error: error.message }
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          return { error: 'Invalid email or password. Please check and try again.' }
+        }
+        if (error.message.includes('Email not confirmed')) {
+          return { error: 'Please check your email and confirm your account first.' }
+        }
+        if (error.message.includes('rate limit')) {
+          return { error: 'Too many login attempts. Please wait a minute.' }
+        }
+        return { error: error.message }
+      }
+
+      if (data?.session) {
+        await fetchProfile(data.session.user.id)
+      }
+
       return { error: null }
     } catch (err) {
-      return { error: 'An unexpected error occurred' }
+      console.error('SignIn error:', err)
+      return { error: 'An unexpected error occurred. Please try again.' }
     }
   }
 
