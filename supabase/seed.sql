@@ -1,0 +1,73 @@
+-- ==========================================
+-- ScrapNet Demo Data Seed
+-- Run this AFTER creating demo users via the app
+-- ==========================================
+
+-- This file provides sample data for demonstration.
+-- Before running this:
+-- 1. Create a user account via the app (e.g., demo.user@scrapnet.app)
+-- 2. Create a scrapper account via the app (e.g., demo.scrapper@scrapnet.app)
+-- 3. Note their UUIDs from the profiles table
+-- 4. Replace the placeholder UUIDs below
+
+-- PLACEHOLDER UUIDs (replace with actual):
+-- USER_ID = '00000000-0000-0000-0000-000000000001'
+-- SCRAPPER_ID = '00000000-0000-0000-0000-000000000002'
+
+-- ==========================================
+-- Update Demo User Profile
+-- ==========================================
+-- UPDATE profiles SET
+--   full_name = 'Priya Sharma',
+--   phone = '+91 98765 43210',
+--   address = '42, Green Park Colony, Sector 15',
+--   area = 'Green Park',
+--   city = 'Bangalore',
+--   pincode = '560001',
+--   latitude = 12.9716,
+--   longitude = 77.5946,
+--   apartment_name = 'Sunshine Apartments',
+--   pickup_instructions = 'Ring doorbell. Ground floor, Flat 3A.'
+-- WHERE id = 'USER_ID';
+
+-- ==========================================
+-- Update Demo Scrapper Profile
+-- ==========================================
+-- UPDATE profiles SET
+--   full_name = 'Ravi Kumar',
+--   phone = '+91 87654 32109',
+--   city = 'Bangalore',
+--   pincode = '560001',
+--   latitude = 12.9750,
+--   longitude = 77.5980
+-- WHERE id = 'SCRAPPER_ID';
+
+-- UPDATE scrapper_profiles SET
+--   business_name = 'Ravi Scrap Services',
+--   categories_accepted = ARRAY['paper', 'cardboard', 'plastic', 'metal', 'glass', 'e_waste']::scrap_category[],
+--   service_radius_km = 10,
+--   experience_years = 5,
+--   is_verified = true,
+--   verification_status = 'verified'
+-- WHERE user_id = 'SCRAPPER_ID';
+
+-- ==========================================
+-- NOTES FOR LIVE DEMO
+-- ==========================================
+-- The best demo flow is to do everything LIVE:
+-- 
+-- 1. Open browser, go to ScrapNet
+-- 2. Sign up as User (demo.user@scrapnet.app / demo123)
+-- 3. Fill in profile
+-- 4. Create a scrap listing with photos
+-- 5. Open incognito window
+-- 6. Sign up as Scrapper (demo.scrapper@scrapnet.app / demo123)
+-- 7. Fill in scrapper profile
+-- 8. Discover the listing
+-- 9. Make an offer
+-- 10. Switch to user window — see offer
+-- 11. Accept offer — privacy unlock demo
+-- 12. Switch to scrapper — update pickup status
+-- 13. Complete → Rate
+--
+-- This creates the most impressive demo because it's LIVE.
