@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { ProtectedRoute, PublicOnlyRoute } from './components/auth/ProtectedRoute'
+import ErrorBoundary from './components/shared/ErrorBoundary'
 import { Loader2 } from 'lucide-react'
 
 // Lazy-loaded pages for code splitting
@@ -20,6 +21,7 @@ const ScrapperOffers = lazy(() => import('./pages/scrapper/ScrapperOffers'))
 const ScrapperPickups = lazy(() => import('./pages/scrapper/ScrapperPickups'))
 const ListingDetail = lazy(() => import('./pages/shared/ListingDetail'))
 const NotificationsPage = lazy(() => import('./pages/shared/NotificationsPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 function PageLoader() {
   return (
@@ -31,6 +33,7 @@ function PageLoader() {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <ToastProvider>
         <Suspense fallback={<PageLoader />}>
@@ -66,11 +69,12 @@ function App() {
             </Route>
 
             {/* Catch all */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </ToastProvider>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 
