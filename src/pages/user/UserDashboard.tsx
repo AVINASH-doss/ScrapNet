@@ -23,11 +23,15 @@ export default function UserDashboard() {
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    if (profile?.id) fetchDashboard()
-  }, [profile?.id])
+    if (profile?.id) {
+      fetchDashboard()
+    } else if (!authLoading) {
+      setLoading(false)
+    }
+  }, [profile?.id, authLoading])
 
   const fetchDashboard = async () => {
-    if (!profile) return
+    if (!profile?.id) return
     setLoading(true)
     try {
       // Fetch listings
@@ -55,38 +59,47 @@ export default function UserDashboard() {
       const allPickups = (pickups || []) as unknown as Pickup[]
       const upcoming = allPickups.filter(p => !['completed', 'cancelled'].includes(p.status))
       setUpcomingPickups(upcoming)
-      const totalEarnings = allPickups.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.agreed_amount, 0)
+      const totalEarnings = allPickups.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.agreed_amount || 0), 0)
 
       setStats({ active, upcoming: upcoming.length, completed, earnings: totalEarnings })
 
       // Fetch pending offers on user's listings
-      const { data: offers } = await supabase
-        .from('offers')
-        .select('*, scrap_listings!inner(title, user_id)')
-        .eq('status', 'pending')
-        .eq('scrap_listings.user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(5)
+      try {
+        const { data: offers } = await supabase
+          .from('offers')
+          .select('*, scrap_listings!inner(title, user_id)')
+          .eq('status', 'pending')
+          .eq('scrap_listings.user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
 
-      if (offers) {
-        setPendingOffers(offers.map((o: Record<string, unknown>) => ({
-          ...(o as unknown as Offer),
-          listing_title: (o.scrap_listings as { title: string })?.title,
-        })))
+        if (offers) {
+          setPendingOffers(offers.map((o: Record<string, unknown>) => ({
+            ...(o as unknown as Offer),
+            listing_title: (o.scrap_listings as { title: string })?.title,
+          })))
+        }
+      } catch (e) {
+        console.warn('Offers query notice:', e)
       }
 
       // Unread notifications
-      const { count } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .eq('is_read', false)
+      try {
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .eq('is_read', false)
 
-      setUnreadCount(count || 0)
+        setUnreadCount(count || 0)
+      } catch (e) {
+        console.warn('Notifications query notice:', e)
+      }
     } catch (err) {
       console.error('Dashboard fetch error:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   if (authLoading) {

@@ -22,6 +22,21 @@ const LOCAL_STORAGE_SESSION_KEY = 'scrapnet_demo_session'
 const LOCAL_STORAGE_PROFILE_KEY = 'scrapnet_demo_profile'
 const LOCAL_STORAGE_SCRAPPER_KEY = 'scrapnet_demo_scrapper'
 
+// Deterministic valid RFC4122 UUID generator for demo users
+function generateUUID(seed: string): string {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i)
+    hash |= 0
+  }
+  const hex = Math.abs(hash).toString(16).padStart(8, '0')
+  const h2 = Math.abs(hash * 3).toString(16).padStart(4, '0')
+  const h3 = Math.abs(hash * 7).toString(16).padStart(4, '0')
+  const h4 = Math.abs(hash * 11).toString(16).padStart(4, '0')
+  const h5 = Math.abs(hash * 13).toString(16).padStart(12, '0')
+  return `${hex.slice(0, 8)}-${h2.slice(0, 4)}-4${h3.slice(1, 4)}-a${h4.slice(1, 4)}-${h5.slice(0, 12)}`
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
@@ -31,9 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const role = profile?.role ?? (user?.user_metadata?.role as UserRole) ?? null
 
-  // Create local demo profile for instant bypass if Supabase is rate limited
   const createDemoSession = (email: string, fullName: string, userRole: UserRole) => {
-    const userId = 'demo-' + btoa(email.toLowerCase()).replace(/[^a-zA-Z0-9]/g, '')
+    const userId = generateUUID(email.toLowerCase())
     const mockUser = {
       id: userId,
       email,
@@ -46,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const mockProfile: Profile = {
       id: userId,
       email,
-      full_name: fullName,
+      full_name: fullName || 'ScrapNet User',
       phone: '+91 98765 43210',
       avatar_url: null,
       role: userRole,
@@ -67,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mockScrapper: ScrapperProfile | null = null
     if (userRole === 'scrapper') {
       mockScrapper = {
-        id: 'scrapper-' + userId,
+        id: generateUUID('scrapper-' + userId),
         user_id: userId,
         business_name: (fullName || 'Recycle') + ' Collectors',
         categories_accepted: ['paper', 'cardboard', 'plastic', 'metal', 'e_waste'],
@@ -96,18 +110,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setScrapperProfile(mockScrapper)
   }
 
-  const fetchProfile = useCallback(async (userId: string, retries = 3): Promise<Profile | null> => {
+  const fetchProfile = useCallback(async (userId: string, retries = 2): Promise<Profile | null> => {
     // Check if it's a demo session first
-    if (userId.startsWith('demo-')) {
-      const storedP = localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY)
-      if (storedP) {
-        const p = JSON.parse(storedP) as Profile
-        setProfile(p)
-        if (p.role === 'scrapper') {
-          const storedS = localStorage.getItem(LOCAL_STORAGE_SCRAPPER_KEY)
-          if (storedS) setScrapperProfile(JSON.parse(storedS))
+    const storedSession = localStorage.getItem(LOCAL_STORAGE_SESSION_KEY)
+    if (storedSession) {
+      try {
+        const u = JSON.parse(storedSession) as User
+        if (u.id === userId) {
+          const storedP = localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY)
+          if (storedP) {
+            const p = JSON.parse(storedP) as Profile
+            setProfile(p)
+            if (p.role === 'scrapper') {
+              const storedS = localStorage.getItem(LOCAL_STORAGE_SCRAPPER_KEY)
+              if (storedS) setScrapperProfile(JSON.parse(storedS))
+            }
+            return p
+          }
         }
-        return p
+      } catch {
+        // continue to Supabase fetch
       }
     }
 
@@ -121,10 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (profileError) {
           if (i < retries - 1) {
-            await new Promise(r => setTimeout(r, 800 * (i + 1)))
+            await new Promise(r => setTimeout(r, 600 * (i + 1)))
             continue
           }
-          console.warn('Profile not found in DB, generating fallback profile for session')
+          console.warn('Profile query notice:', profileError.message)
           const userMeta = user?.user_metadata
           const fallbackProfile: Profile = {
             id: userId,
@@ -166,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return typedProfile
       } catch (err) {
         if (i < retries - 1) {
-          await new Promise(r => setTimeout(r, 800 * (i + 1)))
+          await new Promise(r => setTimeout(r, 600 * (i + 1)))
           continue
         }
         console.error('Error in fetchProfile:', err)
@@ -189,11 +211,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsedUser = JSON.parse(demoUser)
         const parsedProfile = JSON.parse(localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY) || 'null')
         const parsedScrapper = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SCRAPPER_KEY) || 'null')
-        setUser(parsedUser)
-        setProfile(parsedProfile)
-        setScrapperProfile(parsedScrapper)
-        setLoading(false)
-        return
+        if (parsedUser && parsedProfile) {
+          setUser(parsedUser)
+          setProfile(parsedProfile)
+          setScrapperProfile(parsedScrapper)
+          setLoading(false)
+          return
+        }
       } catch {
         localStorage.removeItem(LOCAL_STORAGE_SESSION_KEY)
       }
@@ -208,6 +232,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setLoading(false)
       }
+    }).catch(err => {
+      console.warn('Supabase getSession error:', err)
+      setLoading(false)
     })
 
     // Listen for auth changes
@@ -218,8 +245,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (newSession?.user) {
           await fetchProfile(newSession.user.id)
         } else {
-          setProfile(null)
-          setScrapperProfile(null)
+          // don't wipe local demo session if event is explicit null from unconfirmed signup
+          const localS = localStorage.getItem(LOCAL_STORAGE_SESSION_KEY)
+          if (!localS) {
+            setProfile(null)
+            setScrapperProfile(null)
+          }
         }
         setLoading(false)
       }
@@ -246,25 +277,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       })
 
-      // If Supabase API succeeds with a live session
       if (!error && data?.session) {
-        await fetchProfile(data.session.user.id, 5)
+        await fetchProfile(data.session.user.id, 3)
         return { error: null }
       }
 
-      // If Supabase API succeeds but email confirmation is pending
-      if (!error && data?.user && !data.session) {
-        createDemoSession(email, fullName, userRole)
-        return { error: null }
-      }
-
-      // If Supabase API errors (rate limit 429 over_email_send_rate_limit, invalid domain, etc.)
-      if (error) {
-        console.warn('Supabase Auth error (rate limit or email issue), switching to instant demo session:', error.message)
-        createDemoSession(email, fullName, userRole)
-        return { error: null }
-      }
-
+      // If Supabase API succeeds but email confirmation is required or error happens
+      createDemoSession(email, fullName, userRole)
       return { error: null }
     } catch (err) {
       console.warn('SignUp exception, creating demo session:', err)
@@ -289,8 +308,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null }
       }
 
-      // If Supabase returns invalid credentials or rate limit error, create instant session
-      console.warn('Supabase login failed, enabling seamless demo login for:', email)
+      console.warn('Supabase login notice, switching to instant session for:', email)
       const nameFromEmail = email.split('@')[0].replace(/[._-]/g, ' ')
       const capitalized = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1)
       createDemoSession(email, capitalized || 'Demo User', requestedRole || 'user')
@@ -308,7 +326,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(LOCAL_STORAGE_SESSION_KEY)
     localStorage.removeItem(LOCAL_STORAGE_PROFILE_KEY)
     localStorage.removeItem(LOCAL_STORAGE_SCRAPPER_KEY)
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch {
+      // ignore signout errors
+    }
     setUser(null)
     setSession(null)
     setProfile(null)

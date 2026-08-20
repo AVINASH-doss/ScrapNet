@@ -22,11 +22,15 @@ export default function ScrapperDashboard() {
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    if (profile?.id) fetchDashboard()
-  }, [profile?.id])
+    if (profile?.id) {
+      fetchDashboard()
+    } else if (!authLoading) {
+      setLoading(false)
+    }
+  }, [profile?.id, authLoading])
 
   const fetchDashboard = async () => {
-    if (!profile) return
+    if (!profile?.id) return
     setLoading(true)
     try {
       // Nearby listings
@@ -41,47 +45,64 @@ export default function ScrapperDashboard() {
       setNearbyListings(allListings)
 
       // Active offers
-      const { count: offerCount } = await supabase
-        .from('offers')
-        .select('*', { count: 'exact', head: true })
-        .eq('scrapper_id', profile.id)
-        .eq('status', 'pending')
+      let offerCount = 0
+      try {
+        const { count } = await supabase
+          .from('offers')
+          .select('*', { count: 'exact', head: true })
+          .eq('scrapper_id', profile.id)
+          .eq('status', 'pending')
+        offerCount = count || 0
+      } catch (e) {
+        console.warn('Offers fetch notice:', e)
+      }
 
       // Pickups
-      const { data: pickups } = await supabase
-        .from('pickups')
-        .select('*')
-        .eq('scrapper_id', profile.id)
-        .order('created_at', { ascending: false })
+      let allPickups: Pickup[] = []
+      try {
+        const { data: pickups } = await supabase
+          .from('pickups')
+          .select('*')
+          .eq('scrapper_id', profile.id)
+          .order('created_at', { ascending: false })
 
-      const allPickups = (pickups || []) as unknown as Pickup[]
+        allPickups = (pickups || []) as unknown as Pickup[]
+      } catch (e) {
+        console.warn('Pickups fetch notice:', e)
+      }
+
       setRecentPickups(allPickups.slice(0, 5))
       const todayPickups = allPickups.filter(p => {
         if (!p.pickup_date) return false
         return new Date(p.pickup_date).toDateString() === new Date().toDateString()
       }).length
 
-      const totalEarnings = allPickups.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.agreed_amount, 0)
+      const totalEarnings = allPickups.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.agreed_amount || 0), 0)
 
       setStats({
         nearby: allListings.length,
-        activeOffers: offerCount || 0,
+        activeOffers: offerCount,
         todayPickups,
         earnings: totalEarnings,
       })
 
       // Unread notifications
-      const { count: unread } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .eq('is_read', false)
+      try {
+        const { count: unread } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .eq('is_read', false)
 
-      setUnreadCount(unread || 0)
+        setUnreadCount(unread || 0)
+      } catch (e) {
+        console.warn('Notifications fetch notice:', e)
+      }
     } catch (err) {
       console.error('Dashboard error:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   if (authLoading) {
